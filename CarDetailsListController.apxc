@@ -1,0 +1,154 @@
+public with sharing class CarDetailsListController {
+
+    public List<Car_Detail__c> carDetailList {get;set;}
+    public List<Car__c> carList{get;set;}
+    public importDataFromCSVController importDataCSV{get;set;}
+    public Integer currentPage { get; set; }
+    public Integer totalPages { get; set; }
+    
+    //public List <Car_Detail__c> listToShow { get; set; }
+    //public Integer indexForIterationOnVF { get; set; }
+    //public NumOfRecordsToShow__c osetlimit{get;set;}
+    //public string SelectedAccountId {get;set;}
+    //public boolean isChecked{get;set;}
+    //public static integer PageSize{get;set;}
+    //public string csvAsString{get;set;}
+    //public String message{get;set;}
+    //public Boolean hasNext { get; set; }
+  	//public Boolean hasPrevious { get; set; }
+    //public Integer numOfRecordsOnPage { get; set; }
+   
+    
+    /* variable */
+    
+    //ApexPages.StandardSetController setCon;
+	private Integer setlimit = 20;   
+    private Integer counter = 0;
+    //private Integer currentPage = 1;
+	//private Integer listSize = 0;
+    private  Integer total_size;
+
+    public CarDetailsListController(){           
+        total_size = [SELECT count() FROM Car_Detail__c];
+        countTotalPages(total_size);
+        getData();
+    	importDataCSV = new ImportDataFromCSVController();  
+    }  
+    
+        /* returt list of obj */
+    private void getData(){
+        carDetailList= [Select 
+                car_detail__c.car__r.name, 
+                car_detail__c.car__r.model__c, 
+                car_detail__c.car__r.Year_Of_Manufacture__c, 
+                name, depth__c, height__c, width__c, weight__c,
+                material__c, price__c, quantity__c, Location_Code__c
+                from Car_Detail__c LIMIT :setlimit OFFSET :counter];  
+        currentPage = 1;
+    }
+    
+    public void importDataCSV(){
+        importDataCSV.importCSVFile();
+    }
+    
+    public void DelCarDetail() {
+        String carDetId = ApexPages.currentPage().getParameters().get('CarDetailId');
+        if(String.isNotBlank(carDetId))
+        {
+            List<Car_Detail__c> result = [SELECT id from Car_Detail__c where id = :carDetId];
+            if(result != null && result.size()>0){
+                delete result;
+                getData();
+            } else  {
+            ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,'no record found ! Record is already deleted.');
+                ApexPages.addMessage(myMsg);
+            }		            
+        }    
+    }
+	
+    /* Inline edeting list of detail & car If record consist. on VF apex:inlineEditSupport or mode="inlineEdit"*/
+    public PageReference quickUpdate(){
+        try{ 
+            List <Car__c> car = new List<Car__c>();
+            for(Car_Detail__c carD : carDetailList){
+			 	car.add( carD.Car__r);
+        } 
+        update car;
+		upsert carDetailList;
+        return ApexPages.CurrentPage();
+			}catch(Exception e){
+			return null;
+		}
+	}
+ 
+    public void doNext(){
+        try{
+            Counter += setlimit;
+           	carDetailList = [SELECT 	
+                	car_detail__c.car__r.name, 
+                	car_detail__c.car__r.model__c, 
+                	car_detail__c.car__r.Year_Of_Manufacture__c, 
+                	name, depth__c, height__c, width__c, weight__c,
+                	material__c, price__c, quantity__c, Location_Code__c
+                	from Car_Detail__c LIMIT :setlimit OFFSET :counter]; 
+            currentPage++;
+        }
+        catch(Exception ex){        
+        }
+    }
+    
+    public void doPrevious(){
+        try{
+            counter -= setlimit;
+           	carDetailList = [SELECT 	
+                	car_detail__c.car__r.name, 
+                	car_detail__c.car__r.model__c, 
+                	car_detail__c.car__r.Year_Of_Manufacture__c, 
+                	name, depth__c, height__c, width__c, weight__c,
+                	material__c, price__c, quantity__c, Location_Code__c
+                	from Car_Detail__c LIMIT :setlimit OFFSET :counter];  
+            currentPage--;
+        }
+        catch(Exception ex){           
+        }
+    }
+
+   // Total array size
+    public void countTotalPages(Integer total_size) {
+        totalPages = Math.ceil((double) total_size / setlimit).intValue();
+    }
+    
+    public void doFirst(){
+        try{  
+           carDetailList = [SELECT 	
+                	car_detail__c.car__r.name, 
+               	 	car_detail__c.car__r.model__c, 
+                	car_detail__c.car__r.Year_Of_Manufacture__c, 
+                	name, depth__c, height__c, width__c, weight__c,
+                	material__c, price__c, quantity__c, Location_Code__c
+                	from Car_Detail__c LIMIT :setlimit OFFSET 0];  
+            currentPage = 1;
+            counter = 0;
+        }
+        catch(Exception ex){     
+        }
+    }
+
+    
+    // TODO 
+    public void doLast(){
+        try{ 
+            counter += totalPages;
+            carDetailList = [SELECT 	
+                	car_detail__c.car__r.name, 
+                car_detail__c.car__r.model__c, 
+                car_detail__c.car__r.Year_Of_Manufacture__c, 
+                name, depth__c, height__c, width__c, weight__c,
+                material__c, price__c, quantity__c, Location_Code__c
+                from Car_Detail__c LIMIT :setlimit OFFSET 3];
+            currentPage = totalPages;
+        }
+        catch(Exception ex){            
+        }
+    } 
+}

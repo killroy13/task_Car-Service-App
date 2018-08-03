@@ -1,0 +1,53 @@
+public class importDataFromCSVController {
+    
+    
+    public List<Car__c> carList{get;set;}
+    public List<Car_Detail__c> carDetailList{get;set;}
+    
+    
+    public Blob contentFile{get;set;}
+    
+    public string nameFile{get;set;}
+    
+    
+    public String[] filelines = new String[]{};
+    List<Car_Detail__c> detailsToUpload;
+    
+
+           
+    public importDataFromCSVController(){
+        filelines = new String[]{};
+        carList = New List<car__c>(); 
+        carDetailList = New List<car_detail__c>();
+      }
+      
+      public void importCSVFile(){  
+           try{ 
+               nameFile = contentFile.toString();
+               filelines = nameFile.split('\n');  
+               for(Integer i=1;i<filelines.size();i++){  
+                 
+                   string[] inputValues = filelines[i].split(',');    
+                   Car__c carN = new Car__c(name = inputValues[0],
+                                            model__c = inputValues[1], 
+                                            Year_Of_Manufacture__c = inputValues[2]);
+                   carList.add(carN);
+                   Car_detail__c carD = new Car_detail__c(name = inputValues[3], 
+                                                           depth__c = decimal.valueOf(inputValues[4]),
+                                                           height__c = decimal.valueOf(inputValues[5]),
+                                                           width__c = decimal.valueOf(inputValues[6]),
+                                                           weight__c = decimal.valueOf(inputValues[7]),
+                                                           material__c = inputValues[8],
+                                                           price__c = decimal.valueOf(inputValues[9]),
+                                                           quantity__c = decimal.valueOf(inputValues[10]),
+                                                           Location_Code__c = inputValues[11]);             
+                   upsert carD;
+               }  
+               upsert carList;       
+               }   
+           catch (Exception e) { 
+               ApexPages.Message errorMessage = new ApexPages.Message(ApexPages.severity.ERROR,'An error has occured while importin data Please make sure input csv file is correct');
+            ApexPages.addMessage(errorMessage);
+           }  
+      }
+}

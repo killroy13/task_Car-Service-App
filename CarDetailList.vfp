@@ -1,0 +1,113 @@
+<apex:page id="thePage" controller="CarDetailsListController" title="Car Service" sidebar="false" showHeader="false" >  
+<!--<apex:page standardController="Car_Detail__c" recordSetVar="Car_Details" extensions="CarDetailsListController"> -->
+    <apex:form >
+        <apex:pageBlock title="Import Car Details">
+            
+            <!-- Import Button -->
+            <apex:pageBlockSection columns="6">
+                <apex:inputFile value="{!importDataCSV.nameFile}" filename="{!importDataCSV.nameFile}"/>
+                <apex:commandButton value="Import *.csv" action="{!importDataCSV.importCSVFile}" />
+            </apex:pageBlockSection>            
+        </apex:pageBlock>
+        
+        
+        <!--  Component to allow user to upload file from local machine 
+             <center>
+              <apex:inputFile value="{!contentFile}" filename="{!nameFile}" /> 
+              <apex:commandButton action="{!ReadFile}" value="Upload File" id="theButton" style="width:70px;"/>     
+             </center>  
+        -->
+              
+    </apex:form>
+    
+    <apex:form id="form">
+        
+        <!-- option - for pageBlock mode="inlineEdit" -->
+        <apex:pageBlock title="Car Detail List" id="details_list">
+                                
+            <!-- CarDetail List repeat , другой list для изменения в зависимости пагинации tempArray carDetailList - main array --> 
+            <apex:pageBlockTable value="{! carDetailList }" var="ct">  
+                
+                 <apex:inlineEditSupport showOnEdit="update, cancelButton" 
+ 					hideOnEdit="editButton" event="ondblclick" 
+					changedStyleClass="myBoldClass" resetFunction="resetInlineEdit"/> 
+                
+                <apex:column >  
+                	<a href ="javascript: DelCarDetail('{!ct.Id}');"  > Delete </a>
+            	</apex:column>
+                
+                <apex:column headerValue="Car">
+                	<apex:outputField value="{! ct.car__r.name}" />
+                </apex:column> 
+                
+                <apex:column headerValue="Car Model">
+                	<apex:outputField value="{! ct.car__r.model__c }"/>
+                </apex:column>
+                
+                <apex:column headervalue="Year of Manufacture">
+                	<apex:outputField value="{! ct.car__r.Year_Of_Manufacture__c }"/>
+                </apex:column> 
+                
+                <apex:column headervalue="Detail name" >
+                	<apex:outputField value="{! ct.name }"/>
+                </apex:column> 
+                                    
+                <apex:column headervalue="Depth">
+                   <apex:outputField value="{! ct.depth__c }"/>
+                </apex:column>
+                
+                <apex:column headervalue="Height"> 
+                    <apex:outputField value="{! ct.height__c }"/>               
+             	</apex:column>
+                    
+                <apex:column headervalue="Width"> 
+                    <apex:outputField value="{! ct.width__c }"/>
+                </apex:column>
+                
+                <apex:column id="weight" headervalue="Weight">
+                    <apex:outputField value="{! ct.weight__c }"/>
+                </apex:column>
+                    
+                <apex:column headervalue="Material">
+                	<apex:outputField value="{! ct.material__c }"/>
+                </apex:column> 
+                    
+                <apex:column headervalue="Price">
+                	<apex:outputField value="{! ct.price__c }"/>
+                </apex:column> 
+                    
+                <apex:column headervalue="Quantity">
+                        <apex:outputField value="{! ct.quantity__c }"/>
+                </apex:column> 
+                    
+                <apex:column headervalue="Location code">
+                	<apex:outputField value="{! ct.Location_Code__c }"/>
+                </apex:column>
+                    
+            </apex:pageBlockTable>
+              
+            <!-- Pagination --> 
+                    
+            <center>
+            <apex:commandButton value="First Page" action="{!doFirst}" reRender="form"/> 
+            <apex:commandButton value="Previous" action="{!doPrevious}" reRender="form" /> 
+            &nbsp;&nbsp;
+            <apex:outputLabel value=" (page {!currentPage} of {!totalPages})"/>
+            &nbsp;&nbsp;
+            <apex:commandButton value="Next" action="{!doNext}" reRender="form" /> 
+            <apex:commandButton value="Last Page" action="{!doLast}" reRender="form"/>
+            </center>
+            
+            <!-- End Pagination -->
+            
+		</apex:pageBlock>
+        
+        <!-- Funktion for inline delete records. value="" -->
+        <apex:actionFunction action="{!DelCarDetail}" name="DelCarDetail" reRender="form">
+            <apex:param name="CarDetailId" value="" />
+        </apex:actionFunction>	 
+        
+       	<apex:commandButton id="save" action="{!quickUpdate}" value="Save changes" /> 
+               
+    </apex:form>   
+</apex:page>
