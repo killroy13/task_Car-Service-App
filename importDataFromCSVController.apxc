@@ -1,11 +1,10 @@
 public class importDataFromCSVController {
-    
-    
-    public List<Car__c> carList{get;set;}
+
+  public List<Car__c> carList{get;set;}
     public List<Car_Detail__c> carDetailList{get;set;}
     
     
-    public Blob contentFile{get;set;}
+  public Blob contentFile{get;set;}
     
     public string nameFile{get;set;}
     
@@ -32,6 +31,8 @@ public class importDataFromCSVController {
                                             model__c = inputValues[1], 
                                             Year_Of_Manufacture__c = inputValues[2]);
                    carList.add(carN);
+                   
+                  // связи
                    Car_detail__c carD = new Car_detail__c(name = inputValues[3], 
                                                            depth__c = decimal.valueOf(inputValues[4]),
                                                            height__c = decimal.valueOf(inputValues[5]),
@@ -40,7 +41,7 @@ public class importDataFromCSVController {
                                                            material__c = inputValues[8],
                                                            price__c = decimal.valueOf(inputValues[9]),
                                                            quantity__c = decimal.valueOf(inputValues[10]),
-                                                           Location_Code__c = inputValues[11]);             
+                                                           Location_Code__c = inputValues[11]);           
                    upsert carD;
                }  
                upsert carList;       
